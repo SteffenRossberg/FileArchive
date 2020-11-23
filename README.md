@@ -4,3 +4,9 @@ In the year 2010 my father asked me for a simple program to copy files from sour
 
 Dad,
 to be able to enhance this program in future, I created this repository and leave the source code of the new version here ...
+
+
+Im Jahr 2010 bat mich mein Vater um ein einfaches Programm zum Kopieren von Dateien aus Quellverzeichnissen in Zielverzeichnisse. Wir evaluierten mehrere Programme, um diese Aufgabe zu erfüllen, aber keines war einfach genug, so dass ich beschloss, es selbst zu programmieren. Gestern (22. November 2020), 10 Jahre später, fragte mich mein guter alter Vater, ob ich einen neuen Knopf zu diesem Programm hinzufüge. Ich erinnerte mich nicht mehr an das Programm, also schickte er mir die ausführbare Datei. Ich war wirklich überrascht, dass dieses Programm noch lief und immer noch von meinem Vater benutzt wurde. Der Code war ursprünglich in Visual Basic .Net 2005 geschrieben und verwendete .Net Framework 2.0 und WinForms. Mit JetBrains dotPeek war ich in der Lage, eine generierte Version des Programmcodes in C# zu rekonstruieren. 
+
+Papa,
+um dieses Programm in Zukunft verbessern zu können, habe ich dieses Repository erstellt und lasse den Quellcode der neuen Version hier ...
