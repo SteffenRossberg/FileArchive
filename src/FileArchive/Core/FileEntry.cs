@@ -1,11 +1,20 @@
-﻿namespace FileArchive.Core
+﻿using System.IO;
+
+namespace FileArchive.Core
 {
     public class FileEntry
     {
-        public string FileName { get; set; }
-        
-        public string SourceFolder { get; set; }
+        public FileEntry(FileInfo file, string basePath)
+        {
+            File = file;
+            Name = file.Name;
+            Directory = file.DirectoryName?.Remove(0, basePath.Length);
+        }
 
-        public CompareResults Result { get; set; }
+        public string Name { get; }
+        
+        public FileInfo File { get; }
+
+        public string Directory { get; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows.Forms;
 using FileArchive.Core;
 
@@ -26,11 +27,6 @@ namespace FileArchive.Services
             return dlg.ShowDialog() == DialogResult.OK
                 ? dlg.SelectedPath
                 : folder;
-        }
-
-        public IEnumerable<FileEntry> CompareSourceWithTarget(string source, string target)
-        {
-            throw new NotImplementedException();
         }
     }
 }
