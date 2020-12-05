@@ -10,9 +10,13 @@ namespace FileArchive.Services
     {
         int ComparePaths(FileEntry x, FileEntry y);
 
-        CompareResults CompareFiles(FileEntry source, FileEntry target);
+        CompareResults CompareFiles(FileEntry entry);
 
-        List<FileEntry> GetFiles(string basePath, string searchPattern);
+        List<FileEntry> GetFiles(string sourceBasePath, string targetBasePath, string searchPattern);
+
+        void CopyToTarget(FileEntry entry);
+
+        void DeleteTarget(FileEntry entry);
     }
 
     public class FileService : IFileService
@@ -25,42 +29,77 @@ namespace FileArchive.Services
                 : string.Compare(x.Name, y.Name, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public CompareResults CompareFiles(FileEntry source, FileEntry target)
+        public CompareResults CompareFiles(FileEntry entry)
         {
-            source.File.Refresh();
-            target.File.Refresh();
-            if (source.File.Exists && !target.File.Exists)
+            entry.Source.Refresh();
+            entry.Target.Refresh();
+            if (entry.Source.Exists && !entry.Target.Exists)
                 return CompareResults.MissingTarget;
-            if (!source.File.Exists && target.File.Exists)
+            if (!entry.Source.Exists && entry.Target.Exists)
                 return CompareResults.MissingSource;
-            if (!CanReadFile(source.File))
+            if (!CanReadFile(entry.Source))
                 return CompareResults.ReadSourceFailed;
-            if (!CanReadFile(target.File))
+            if (!CanReadFile(entry.Target))
                 return CompareResults.ReadTargetFailed;
-            if (!CanWriteFile(target.File))
+            if (!CanWriteFile(entry.Target))
                 return CompareResults.WriteTargetFailed;
-            return !FilesAreEqual(source.File, target.File) 
+            return !FilesAreEqual(entry.Source, entry.Target) 
                 ? CompareResults.Different 
                 : CompareResults.Equal;
         }
 
-        public List<FileEntry> GetFiles(string basePath, string searchPattern)
-            => GetSubDirectories(basePath)
-                .SelectMany(directory => GetFilesOfSubDirectory(directory, searchPattern))
-                .ToList();
+        public List<FileEntry> GetFiles(string sourceBasePath, string targetBasePath, string searchPattern)
+        {
+            var sourceFiles = 
+                GetFiles(sourceBasePath, searchPattern)
+                .Select(file => CreateFileEntry(sourceBasePath, targetBasePath, file, sourceBasePath));
 
-        private static IEnumerable<FileEntry> GetFilesOfSubDirectory(string directory, string searchPattern)
+            var targetFiles = 
+                GetFiles(targetBasePath, searchPattern)
+                .Select(file => CreateFileEntry(sourceBasePath, targetBasePath, file, targetBasePath))
+                .Where(entry => !entry.Source.Exists);
+
+            return
+                sourceFiles
+                    .Concat(targetFiles)
+                    .Select(file =>
+                    {
+                        file.CompareResult = CompareFiles(file);
+                        return file;
+                    })
+                    .ToList();
+        }
+
+        public void CopyToTarget(FileEntry entry)
+        {
+            if (!Directory.Exists(entry.Target.DirectoryName))
+                Directory.CreateDirectory(entry.Target.DirectoryName!);
+            entry.Source.CopyTo(entry.Target.FullName, true);
+        }
+
+        public void DeleteTarget(FileEntry entry)
+        {
+            entry.Target.Delete();
+        }
+
+        private static FileEntry CreateFileEntry(string sourcePath, string targetPath, FileSystemInfo file, string basePath)
+            => new FileEntry(sourcePath, targetPath, file.FullName.Remove(0, basePath.Length + 1));
+
+        private static IEnumerable<FileInfo> GetFiles(string path, string searchPattern)
+            => GetSubDirectories(path)
+                .SelectMany(directory => GetFilesOfSubDirectory(directory, searchPattern));
+
+        private static IEnumerable<FileInfo> GetFilesOfSubDirectory(string directory, string searchPattern)
         {
             try
             {
                 return Directory
                     .EnumerateFiles(directory, searchPattern, SearchOption.TopDirectoryOnly)
-                    .Select(file => new FileInfo(file))
-                    .Select(file => new FileEntry(file, directory));
+                    .Select(file => new FileInfo(file));
             }
             catch
             {
-                return Enumerable.Empty<FileEntry>();
+                return Enumerable.Empty<FileInfo>();
             }
         }
 

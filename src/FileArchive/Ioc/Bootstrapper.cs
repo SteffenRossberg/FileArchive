@@ -11,8 +11,11 @@ namespace FileArchive.Ioc
         public Bootstrapper(IIocContainer container)
         {
             container.Register<MainViewModel, IMainViewModel>();
+            container.Register<FileViewModel, IFileViewModel>();
             container.Register<ILocator>(() => new Locator(container));
             container.Register<FileSystemService, IFileSystemService>();
+            container.Register<FileService, IFileService>();
+            container.Register<ConfigurationService, IConfigurationService>();
             container.Register<CommandFactory, ICommandFactory>();
             container.Register(() =>
             {

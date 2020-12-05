@@ -136,8 +136,11 @@ namespace FileArchive.Ioc
 
         private void Dispose(bool disposing)
         {
-            _instances.Clear();
-            _factories.Clear();
+            if (disposing)
+            {
+                _instances.Clear();
+                _factories.Clear();
+            }
         }
 
         ~IocContainer()

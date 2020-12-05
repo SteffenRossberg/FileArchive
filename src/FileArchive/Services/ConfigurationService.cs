@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace FileArchive.Services
 {
     public interface IConfigurationService : IDisposable
     {
         string this[string entryName, string defaultValue = ""] { get; set; }
+
+        IEnumerable<KeyValuePair<string, string>> GetSettings(string settingsName);
+
         void Load();
         void Save();
         void Reset();
@@ -45,6 +50,11 @@ namespace FileArchive.Services
                 Load();
             }
         }
+
+        public IEnumerable<KeyValuePair<string, string>> GetSettings(string settingsName)
+            => _values
+                .Where(entry => Regex.IsMatch(entry.Key, $"{settingsName}[0-9]+", RegexOptions.IgnoreCase))
+                .OrderBy(entry => entry.Value);
 
         public void Load()
         {
