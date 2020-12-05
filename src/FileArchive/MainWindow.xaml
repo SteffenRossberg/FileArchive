@@ -99,8 +99,8 @@
                     </Grid>
                 </Button.Content>
             </Button>
-            <ComboBox Grid.Row="0" Grid.Column="1" Margin="4" Text="{Binding CurrentSource, Mode=TwoWay}" />
-            <ComboBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding CurrentTarget, Mode=TwoWay}" />
+            <ComboBox Grid.Row="0" Grid.Column="1" Margin="4" Text="{Binding CurrentSource, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Sources}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding CurrentTarget, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Targets}" />
         </Grid>
         <Grid Grid.Row="1" Background="#FFADD8E6" Margin="4,0,4,4">
             <Grid.RowDefinitions>
@@ -129,7 +129,7 @@
                 </Image>
                 <TextBlock Margin="15,0" Grid.Column="1">Filter:</TextBlock>
             </Grid>
-            <ComboBox Grid.Column="1" Grid.Row="0" Text="{Binding CurrentFilter, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="1" Grid.Row="0" Text="{Binding CurrentFilter, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Filters}"/>
             <Button Grid.Column="2" Grid.Row="0" Command="{Binding CompareSourceWithTargetCommand, Mode=OneTime}">
                 <Button.Content>
                     <Grid HorizontalAlignment="Stretch">
@@ -194,20 +194,35 @@
                 </Button.Content>
             </Button>
         </Grid>
-        <DataGrid Grid.Row="2" Background="#FF8DB8C6">
+        <DataGrid Grid.Row="2" Background="#FF8DB8C6" ItemsSource="{Binding Files}" AutoGenerateColumns="False">
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                            <Setter Property="Background" Value="#FF8DF8C6"></Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn />
-                <DataGridTextColumn Width="Auto" MinWidth="250">
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Path=IsSelected, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Width="Auto" MinWidth="250" Binding="{Binding FileName}">
                     <DataGridTextColumn.Header>
                         <TextBlock>Datei</TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
-                <DataGridTextColumn Width="*">
+                <DataGridTextColumn Width="*" Binding="{Binding SourceDirectory}">
                     <DataGridTextColumn.Header>
                         <TextBlock>Quellverzeichnis</TextBlock>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
-                <DataGridTextColumn Width="*">
+                <DataGridTextColumn Width="*" Binding="{Binding Result}">
                     <DataGridTextColumn.Header>
                         <TextBlock>Ergebnis</TextBlock>
                     </DataGridTextColumn.Header>
