@@ -99,8 +99,8 @@
                     </Grid>
                 </Button.Content>
             </Button>
-            <ComboBox Grid.Row="0" Grid.Column="1" Margin="4" Text="{Binding CurrentSource, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Sources}" />
-            <ComboBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding CurrentTarget, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Targets}" />
+            <ComboBox Grid.Row="0" Grid.Column="1" Margin="4" Text="{Binding CurrentSource, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=500}" ItemsSource="{Binding Sources}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" Margin="4" Text="{Binding CurrentTarget, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=500}" ItemsSource="{Binding Targets}" />
         </Grid>
         <Grid Grid.Row="1" Background="#FFADD8E6" Margin="4,0,4,4">
             <Grid.RowDefinitions>
@@ -129,7 +129,7 @@
                 </Image>
                 <TextBlock Margin="15,0" Grid.Column="1">Filter:</TextBlock>
             </Grid>
-            <ComboBox Grid.Column="1" Grid.Row="0" Text="{Binding CurrentFilter, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding Filters}"/>
+            <ComboBox Grid.Column="1" Grid.Row="0" Text="{Binding CurrentFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Delay=500}" ItemsSource="{Binding Filters}"/>
             <Button Grid.Column="2" Grid.Row="0" Command="{Binding CompareSourceWithTargetCommand, Mode=OneTime}">
                 <Button.Content>
                     <Grid HorizontalAlignment="Stretch">
