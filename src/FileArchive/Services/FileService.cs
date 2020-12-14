@@ -50,6 +50,9 @@ namespace FileArchive.Services
 
         public List<FileEntry> GetFiles(string sourceBasePath, string targetBasePath, string searchPattern)
         {
+            sourceBasePath = NormalizePath(sourceBasePath);
+            targetBasePath = NormalizePath(targetBasePath);
+
             var sourceFiles = 
                 GetFiles(sourceBasePath, searchPattern)
                 .Select(file => CreateFileEntry(sourceBasePath, targetBasePath, file, sourceBasePath));
@@ -82,8 +85,17 @@ namespace FileArchive.Services
             entry.Target.Delete();
         }
 
+        private static string NormalizePath(string path)
+        {
+            if (!path.EndsWith(Path.DirectorySeparatorChar))
+            {
+                path += Path.DirectorySeparatorChar;
+            }
+            return path;
+        }
+
         private static FileEntry CreateFileEntry(string sourcePath, string targetPath, FileSystemInfo file, string basePath)
-            => new FileEntry(sourcePath, targetPath, file.FullName.Remove(0, basePath.Length + 1));
+            => new FileEntry(sourcePath, targetPath, file.FullName.Remove(0, basePath.Length));
 
         private static IEnumerable<FileInfo> GetFiles(string path, string searchPattern)
             => GetSubDirectories(path)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
@@ -39,7 +40,8 @@ namespace FileArchive.ViewModels
                 Filters, 
                 "filter",
                 string.IsNullOrWhiteSpace,
-                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase));
+                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase),
+                v => !string.IsNullOrWhiteSpace(v));
         }
 
         private string _currentSource;
@@ -52,7 +54,8 @@ namespace FileArchive.ViewModels
                 Sources,
                 "source",
                 string.IsNullOrWhiteSpace,
-                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase));
+                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase),
+                Directory.Exists);
         }
 
         private string _currentTarget;
@@ -65,7 +68,8 @@ namespace FileArchive.ViewModels
                 Targets,
                 "target",
                 string.IsNullOrWhiteSpace,
-                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase));
+                (x, y) => string.Equals(x, y, StringComparison.InvariantCultureIgnoreCase),
+                Directory.Exists);
         }
 
         private ObservableCollection<string> _filters;
@@ -138,21 +142,31 @@ namespace FileArchive.ViewModels
             string settingName, 
             Func<TValue, bool> isEmpty, 
             Func<TValue, TValue, bool> isEqual, 
+            Func<TValue, bool> isValid,
             [CallerMemberName] string propertyName = null)
         {
-            if (!Set(ref field, value))
-                return;
-            var fieldValue = field;
-            if (isEmpty(fieldValue))
-                return;
-            if (isEqual(fieldValue, default))
-                return;
-            if (settings.Any(setting => isEqual(setting, fieldValue)))
-                return;
-            _configurationService[$"{settingName}{settings.Count}"] = fieldValue.ToString();
-            settings.Add(fieldValue);
-            _configurationService.Save();
-            RaisePropertyChanged(propertyName);
+            try
+            {
+                if (!Set(ref field, value))
+                    return;
+                if (!isValid(value))
+                    return;
+                var fieldValue = field;
+                if (isEmpty(fieldValue))
+                    return;
+                if (isEqual(fieldValue, default))
+                    return;
+                if (settings.Any(setting => isEqual(setting, fieldValue)))
+                    return;
+                _configurationService[$"{settingName}{settings.Count}"] = fieldValue.ToString();
+                settings.Add(fieldValue);
+                _configurationService.Save();
+            }
+            finally
+            {
+                RaisePropertyChanged(propertyName);
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
 
         private void SelectSource()
